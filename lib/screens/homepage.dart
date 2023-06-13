@@ -1,9 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
 import 'package:place_finder/utils/defaultTextFormField.dart';
+import 'package:place_finder/utils/mapbox_handler.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,6 +15,15 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 1;
+
+  _getRoute() async {
+    LatLng sourceLatLng = Constants.getSourceDestLatLng('source');
+    LatLng destinationLatLng = Constants.getSourceDestLatLng('destination');
+    Map modifiedResponse =
+    await getDirectionsAPIResponse(sourceLatLng, destinationLatLng);
+
+    Navigator.popAndPushNamed(context, '/map', arguments: {'modifiedResponse': modifiedResponse});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +156,8 @@ class _HomePageState extends State<HomePage> {
                       child: DefaultButton(
                           onPressed: () {
                             print("selected index: $_selectedIndex");
-                            Navigator.pushNamed(context, '/map');
+                            _getRoute();
+                            // Navigator.pushNamed(context, '/map');
                           },
                           text: "Route",
                           textSize: 25))
