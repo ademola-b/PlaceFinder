@@ -19,8 +19,8 @@ class _HomePageState extends State<HomePage> {
   _getRoute() async {
     LatLng sourceLatLng = Constants.getSourceDestLatLng('source');
     LatLng destinationLatLng = Constants.getSourceDestLatLng('destination');
-    Map modifiedResponse =
-    await getDirectionsAPIResponse(sourceLatLng, destinationLatLng);
+    Map?  modifiedResponse =
+    await getDirectionsAPIResponse(sourceLatLng, destinationLatLng, context);
 
     Navigator.popAndPushNamed(context, '/map', arguments: {'modifiedResponse': modifiedResponse});
   }

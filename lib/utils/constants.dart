@@ -21,7 +21,12 @@ class Constants {
   }
 
   static LatLng getSourceDestLatLng(String type) {
-    const LatLng sourceLocation = LatLng(10.5200603, 7.4166742);
+
+    double sourceLat = sharedPreferences.getDouble('latitude') as double;
+    double sourceLng = sharedPreferences.getDouble('longitude') as double;
+    
+    // const LatLng sourceLocation = LatLng(10.5200603, 7.4166742);
+     LatLng sourceLocation = LatLng(sourceLat, sourceLng);
     const LatLng destinationLocation = LatLng(10.5400603, 7.4166742);
 
     if (type == 'source') {

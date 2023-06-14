@@ -172,15 +172,17 @@ class _LoginPageState extends State<LoginPage> {
                             text: "Don't have an account? ",
                             weight: FontWeight.normal,
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushNamed(context, '/register');
-                            },
-                            child: DefaultText(
-                              size: 18.0,
-                              color: Constants.primaryColor,
-                              text: "Register Now",
-                              weight: FontWeight.bold,
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              child: DefaultText(
+                                size: 18.0,
+                                color: Constants.primaryColor,
+                                text: "Register Now",
+                                weight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],

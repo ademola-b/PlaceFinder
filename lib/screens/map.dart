@@ -6,6 +6,8 @@ import 'package:mapbox_gl/mapbox_gl.dart';
 // import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 // import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:place_finder/utils/constants.dart';
+import 'package:place_finder/utils/defaultButton.dart';
+import 'package:place_finder/utils/defaultText.dart';
 import 'package:place_finder/utils/mapbox_handler.dart';
 
 class MapPage extends StatefulWidget {
@@ -57,19 +59,26 @@ class _MapPageState extends State<MapPage> {
     _initialCameraPosition =
         CameraPosition(target: currentLocation, zoom: 14.0);
 
-    for (String type in ['source', 'destination']) {
-      _kRouteEndPoints.add(CameraPosition(
-          target: Constants.getSourceDestLatLng(type), zoom: 15.0));
+    if (widget.arguments['modifiedResponse'] != null) {
+      for (String type in ['source', 'destination']) {
+        _kRouteEndPoints.add(CameraPosition(
+            target: Constants.getSourceDestLatLng(type), zoom: 15.0));
+      }
     }
 
     super.initState();
   }
 
   _initialiseDirectionsResponse() {
-    distance = (widget.arguments['modifiedResponse']['distance'] / 1000)
-        .toStringAsFixed(1);
-    // dropOffTime = getDropOffTime(widget.arguments['modifiedResponse']['duration']);
-    geometry = widget.arguments['modifiedResponse']['geometry'];
+    if (widget.arguments['modifiedResponse'] != null) {
+      distance = (widget.arguments['modifiedResponse']['distance'] / 1000)
+          .toStringAsFixed(1);
+      // dropOffTime = getDropOffTime(widget.arguments['modifiedResponse']['duration']);
+      geometry = widget.arguments['modifiedResponse']['geometry'];
+    } else {
+      distance = "";
+      geometry = {};
+    }
   }
 
   _addSourceAndLineLayer() async {
@@ -120,15 +129,60 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
-        body: MapboxMap(
-      initialCameraPosition: _initialCameraPosition,
-      accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
-      myLocationEnabled: true,
-      onMapCreated: _onMapCreated,
-      onStyleLoadedCallback: _onStyleLoadedCallback,
-      myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
-      minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+        body: SafeArea(
+      child: Stack(children: [
+        SizedBox(
+          height: size.height,
+          child: MapboxMap(
+            initialCameraPosition: _initialCameraPosition,
+            accessToken: dotenv.env['MAPBOX_ACCESS_TOKEN'],
+            myLocationEnabled: true,
+            onMapCreated: _onMapCreated,
+            onStyleLoadedCallback: _onStyleLoadedCallback,
+            myLocationTrackingMode: MyLocationTrackingMode.TrackingGPS,
+            minMaxZoomPreference: const MinMaxZoomPreference(14, 17),
+          ),
+        ),
+        Positioned(
+            bottom: 0,
+            child: SizedBox(
+              width: size.width,
+              child: Card(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const DefaultText(text: "From - To", size: 18.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 10.0),
+                      child: ListTile(
+                        tileColor: Colors.grey[200],
+                        title: DefaultText(
+                          text: "Walking Distance: $distance km",
+                          size: 18.0,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                          right: 10.0, left: 10.0, bottom: 10.0),
+                      child: SizedBox(
+                        width: size.width,
+                        child: DefaultButton(
+                            onPressed: () {
+                              Navigator.popAndPushNamed(context, '/turnByturn');
+                            },
+                            text: "Start Movement",
+                            textSize: 18.0),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ))
+      ]),
     ));
   }
 }
