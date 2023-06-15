@@ -20,8 +20,6 @@ class _AddLocationState extends State<AddLocation> {
   late String? _lat;
   late String? _long;
 
-  bool _obscureText = false;
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -76,7 +74,7 @@ class _AddLocationState extends State<AddLocation> {
                             obscureText: false,
                             maxLines: 1,
                             fontSize: 20.0,
-                            icon: Icons.location_city,
+                            icon: Icons.location_on,
                             keyboardInputType: TextInputType.text,
                             validator: Constants.validator,
                             onSaved: (value) {
@@ -98,7 +96,7 @@ class _AddLocationState extends State<AddLocation> {
                             maxLines: 1,
                             keyboardInputType: TextInputType.text,
                             fontSize: 20.0,
-                            icon: Icons.email,
+                            icon: Icons.location_on,
                             validator: Constants.validator,
                             onSaved: (value) {
                               _long = value!;
