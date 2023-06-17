@@ -27,11 +27,31 @@ class _AdHomePageState extends State<AdHomePage> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  DefaultText(
-                    text: "Available Locations",
-                    size: 25.0,
-                    weight: FontWeight.bold,
-                    color: Constants.altColor,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      DefaultText(
+                        text: "Available Locations",
+                        size: 25.0,
+                        weight: FontWeight.bold,
+                        color: Constants.altColor,
+                      ),
+                      const Spacer(),
+                      IconButton(
+                          onPressed: () {
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/login', (route) => false);
+                          },
+                          icon: Icon(
+                            Icons.power_settings_new,
+                            color: Constants.altColor,
+                            size: 30.0,
+                          ))
+                    ],
+                  ),
+                  Divider(
+                    color: Constants.primaryColor,
+                    thickness: 2.0,
                   ),
                   const SizedBox(height: 30.0),
                   const DefaultTextFormField(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:place_finder/services/remote_service.dart';
 
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
@@ -23,12 +24,13 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  _login() {
+  _login() async {
     var isValid = _form.currentState!.validate();
     if (!isValid) return;
     _form.currentState!.save();
 
-    Navigator.popAndPushNamed(context, '/homePage');
+    await RemoteService.login(_username, _password, context);
+
   }
 
   @override

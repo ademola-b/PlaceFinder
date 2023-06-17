@@ -1,8 +1,11 @@
+import base64
+
 from django.contrib.auth import get_user_model
 import django.contrib.auth.password_validation as validators
 from django.core import exceptions
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+from dj_rest_auth.serializers import UserDetailsSerializer
 from . models import User
 
 class CustomRegisterSerializer(serializers.ModelSerializer):
@@ -43,3 +46,17 @@ class CustomRegisterSerializer(serializers.ModelSerializer):
 
         user.save()
         return user
+
+
+class UserDetailsSerializer(UserDetailsSerializer):
+    is_staff = serializers.BooleanField()
+    # picture_memory = serializers.SerializerMethodField("get_image_memory")
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = UserDetailsSerializer.Meta.fields + ('name','is_staff','picture', ) 
+        read_only_fields = ('email', 'is_staff')
+
+    def get_image_memory(request, user:User):
+        with open(user.picture.name, 'rb') as loadedfile:
+            return base64.b64encode(loadedfile.read())
+
