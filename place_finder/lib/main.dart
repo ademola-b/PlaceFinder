@@ -18,7 +18,7 @@ void main() async {
   await dotenv.load(fileName: "assets/config/.env");
   runApp(const MaterialApp(
     debugShowCheckedModeBanner: false,
-    initialRoute: '/addLocation',
+    initialRoute: '/',
     onGenerateRoute: _getRoutes,
   ));
 }

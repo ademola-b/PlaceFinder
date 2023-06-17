@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:place_finder/models/register_response.dart';
+import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
@@ -16,16 +18,25 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
   final _form = GlobalKey<FormState>();
 
-  late String? _name;
-  late String? _email;
-  late String? _password;
-  late String? _confirmPassword;
+  late String _name;
+  late String _email;
+  late String _password;
+  late String _confirmPassword;
   bool _obscureText = false;
 
   _toggle() {
     setState(() {
       _obscureText = !_obscureText;
     });
+  }
+
+  void _register() async {
+    var isValid = _form.currentState!.validate();
+    if (!isValid) return;
+
+    _form.currentState!.save();
+
+    await RemoteService.register(_name, _email, _password, context);
   }
 
   @override
@@ -141,7 +152,9 @@ class _RegisterState extends State<Register> {
                         SizedBox(
                           width: size.width,
                           child: DefaultButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              _register();
+                            },
                             text: 'Register',
                             textSize: 20.0,
                           ),
