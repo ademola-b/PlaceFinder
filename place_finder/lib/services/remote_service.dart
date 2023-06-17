@@ -29,6 +29,11 @@ class RemoteService {
             ScaffoldMessenger.of(context)
                 .showSnackBar(SnackBar(content: DefaultText(text: "$element")));
           }
+        } else if (responseBody['password'] != null) {
+          for (var element in responseBody['password']) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: DefaultText(text: "$element")));
+          }
         }
 
         return registerResponseFromJson(response.body);

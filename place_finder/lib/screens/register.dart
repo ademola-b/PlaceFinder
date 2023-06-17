@@ -23,6 +23,7 @@ class _RegisterState extends State<Register> {
   late String _password;
   late String _confirmPassword;
   bool _obscureText = false;
+  final TextEditingController _pass = TextEditingController();
 
   _toggle() {
     setState(() {
@@ -108,6 +109,7 @@ class _RegisterState extends State<Register> {
                         ),
                         const SizedBox(height: 10.0),
                         DefaultTextFormField(
+                          text: _pass,
                           fontSize: 20.0,
                           icon: Icons.password,
                           validator: Constants.validator,
@@ -134,7 +136,15 @@ class _RegisterState extends State<Register> {
                         DefaultTextFormField(
                           fontSize: 20.0,
                           icon: Icons.password,
-                          validator: Constants.validator,
+                          validator: (String? value) {
+                            if (value == null || value.isEmpty) {
+                              return "This Field is required";
+                            }
+                            if (value != _pass.text) {
+                              return "Password not Match";
+                            }
+                            return null;
+                          },
                           keyboardInputType: TextInputType.visiblePassword,
                           obscureText: !_obscureText,
                           maxLines: 1,
