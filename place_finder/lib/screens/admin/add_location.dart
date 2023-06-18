@@ -1,7 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/src/widgets/container.dart';
-import 'package:flutter/src/widgets/framework.dart';
+import 'package:location/location.dart';
+import 'package:place_finder/models/location_creation_response.dart';
+import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
@@ -17,8 +19,52 @@ class AddLocation extends StatefulWidget {
 class _AddLocationState extends State<AddLocation> {
   final _form = GlobalKey<FormState>();
 
-  late String? _lat;
-  late String? _long;
+  String? _name;
+  String? _lat;
+  String? _lng;
+
+  TextEditingController name = TextEditingController();
+  TextEditingController latitude = TextEditingController();
+  TextEditingController longitude = TextEditingController();
+
+  _addLocation() async {
+    var isValid = _form.currentState!.validate();
+    if (!isValid) return;
+
+    _form.currentState!.save();
+
+    LocationCreationResponse? locationCreate =
+        await RemoteService.locationCreate(
+            context, name.text, latitude.text, longitude.text);
+
+    await Constants.dialogBox(context, "Location Added", Constants.primaryColor,
+        Icons.check_circle_outline);
+    Navigator.pop(context);
+  }
+
+  getCurrentLocation() async {
+    Location _location = Location();
+    bool? _serviceEnabled;
+    PermissionStatus? _permissionGranted;
+
+    _serviceEnabled = await _location.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await _location.requestService();
+    }
+
+    _permissionGranted = await _location.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await _location.requestPermission();
+    }
+
+    // Get the current location
+    LocationData _locationData = await _location.getLocation();
+
+    setState(() {
+      latitude.text = _locationData.latitude.toString();
+      longitude.text = _locationData.longitude.toString();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +101,9 @@ class _AddLocationState extends State<AddLocation> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DefaultButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            getCurrentLocation();
+                          },
                           text: "Get Coordinates",
                           textSize: 18.0)
                     ],
@@ -67,10 +115,29 @@ class _AddLocationState extends State<AddLocation> {
                         children: [
                           const Align(
                             alignment: Alignment.centerLeft,
+                            child: DefaultText(size: 18.0, text: "Name"),
+                          ),
+                          const SizedBox(height: 10.0),
+                          DefaultTextFormField(
+                            text: name,
+                            obscureText: false,
+                            maxLines: 1,
+                            fontSize: 20.0,
+                            icon: Icons.location_on,
+                            keyboardInputType: TextInputType.text,
+                            validator: Constants.validator,
+                            onSaved: (value) {
+                              _name = value!;
+                            },
+                          ),
+                          const SizedBox(height: 20.0),
+                          const Align(
+                            alignment: Alignment.centerLeft,
                             child: DefaultText(size: 18.0, text: "Latitude"),
                           ),
                           const SizedBox(height: 10.0),
                           DefaultTextFormField(
+                            text: latitude,
                             obscureText: false,
                             maxLines: 1,
                             fontSize: 20.0,
@@ -92,6 +159,7 @@ class _AddLocationState extends State<AddLocation> {
                           ),
                           const SizedBox(height: 10.0),
                           DefaultTextFormField(
+                            text: longitude,
                             obscureText: false,
                             maxLines: 1,
                             keyboardInputType: TextInputType.text,
@@ -99,14 +167,16 @@ class _AddLocationState extends State<AddLocation> {
                             icon: Icons.location_on,
                             validator: Constants.validator,
                             onSaved: (value) {
-                              _long = value!;
+                              _lng = value!;
                             },
                           ),
                           const SizedBox(height: 30.0),
                           SizedBox(
                             width: size.width,
                             child: DefaultButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                _addLocation();
+                              },
                               text: 'Add Location',
                               textSize: 20.0,
                             ),

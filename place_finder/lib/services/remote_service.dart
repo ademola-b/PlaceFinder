@@ -3,11 +3,15 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
+import 'package:place_finder/main.dart';
+import 'package:place_finder/models/location_creation_response.dart';
+import 'package:place_finder/models/location_response.dart';
 import 'package:place_finder/models/login_response.dart';
 import 'package:place_finder/models/register_response.dart';
 import 'package:place_finder/models/user_response.dart';
 import 'package:place_finder/services/urls.dart';
 import 'package:place_finder/utils/defaultText.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RemoteService {
   static Future<RegisterResponse?> register(
@@ -60,11 +64,12 @@ class RemoteService {
       print("object: okay");
       if (data != null) {
         if (data["key"] != null) {
+          sharedPreferences.setString("token", data["key"]);
           // get user details
-          UserDetailsResponse? _userDetails =
+          UserDetailsResponse? userDetails =
               await RemoteService.userResponse(data['key'], context);
-          if (_userDetails != null) {
-            if (_userDetails.isStaff) {
+          if (userDetails != null) {
+            if (userDetails.isStaff) {
               Navigator.popAndPushNamed(context, '/adHomePage');
             } else {
               Navigator.popAndPushNamed(context, '/homePage');
@@ -101,6 +106,39 @@ class RemoteService {
           SnackBar(content: DefaultText(text: "An error occured: $e")));
     }
 
+    return null;
+  }
+
+  static Future<List<LocationResponse?>?> locationResponse(context) async {
+    // get user token
+    String? token = sharedPreferences.getString("token");
+    try {
+      var response = await http
+          .get(locationUrl, headers: {"Authorization": "Token $token"});
+      if (response.statusCode == 200) {
+        return locationResponseFromJson(response.body);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: DefaultText(text: "An error occured: $e")));
+    }
+
+    return null;
+  }
+
+  static Future<LocationCreationResponse?> locationCreate(
+      context, String? name, String? latitude, String? longitude) async {
+    try {
+      var response = await http.post(locationUrl,
+          body: {"name": name, "latitude": latitude, "longitude": longitude});
+
+      if (response.statusCode == 201) {
+        return locationCreationResponseFromJson(response.body);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: DefaultText(text: "An error occured: $e")));
+    }
     return null;
   }
 }

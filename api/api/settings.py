@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
 
     'accounts',
+    'place_finder'
 ]
 
 SITE_ID = 1

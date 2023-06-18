@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
@@ -14,15 +15,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 1;
+  int _selectedIndex = -1;
+  late String destLat;
+  late String destLng;
 
-  _getRoute() async {
+  _getRoute(double destinationLat, double destinationLng) async {
     LatLng sourceLatLng = Constants.getSourceDestLatLng('source');
-    LatLng destinationLatLng = Constants.getSourceDestLatLng('destination');
-    Map?  modifiedResponse =
-    await getDirectionsAPIResponse(sourceLatLng, destinationLatLng, context);
+    LatLng destinationLatLng = Constants.getSourceDestLatLng('destination',
+        destinationLat: destinationLat, destinationLng: destinationLng);
+    Map? modifiedResponse = await getDirectionsAPIResponse(
+        sourceLatLng, destinationLatLng, context);
 
-    Navigator.popAndPushNamed(context, '/map', arguments: {'modifiedResponse': modifiedResponse});
+    print("object: $destinationLat");
+    print("object: $destinationLng");
+    // Navigator.popAndPushNamed(context, '/map',
+    //     arguments: {'modifiedResponse': modifiedResponse});
   }
 
   @override
@@ -74,37 +81,6 @@ class _HomePageState extends State<HomePage> {
                     label: "Search",
                   ),
                   const SizedBox(height: 30.0),
-                  // SizedBox(
-                  //   height: size.height / 2.5,
-                  //   child: ListView.builder(
-                  //     shrinkWrap: true,
-                  //     scrollDirection: Axis.vertical,
-                  //     itemCount: 20,
-                  //     itemBuilder: (BuildContext context, int index) {
-                  //       return Container(
-                  //         margin: const EdgeInsets.only(bottom: 10.0),
-                  //         width: MediaQuery.of(context).size.width,
-                  //         decoration: const BoxDecoration(
-                  //           borderRadius:
-                  //               BorderRadius.all(Radius.circular(20.0)),
-                  //           color: Colors.white,
-                  //         ),
-                  //         child: ListTile(
-                  //           onTap: () {
-                  //             // Navigator.pushNamed(context, '/studentDetails');
-                  //           },
-                  //           title: DefaultText(
-                  //             size: 18,
-                  //             text: "Computer Science",
-                  //             color: Constants.primaryColor,
-                  //             weight: FontWeight.w500,
-                  //           ),
-                  //         ),
-                  //       );
-                  //     },
-                  //   ),
-                  // ),
-
                   Container(
                     width: size.width,
                     height: size.height / 1.5,
@@ -112,43 +88,67 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
                     ),
-                    child: ListView.builder(
-                        itemCount: 10,
-                        itemBuilder: (context, index) {
-                          return Container(
-                            margin: const EdgeInsets.only(
-                                bottom: 5.0, left: 10.0, right: 10.0),
-                            width: MediaQuery.of(context).size.width,
-                            decoration: const BoxDecoration(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(20.0)),
-                              color: Colors.white,
-                            ),
-                            child: ChoiceChip(
-                              label: Container(
-                                padding: const EdgeInsets.all(10.0),
-                                width: size.width,
-                                child: const DefaultText(
-                                  align: TextAlign.center,
-                                  text: "Computer Science",
-                                  size: 22.0,
-                                ),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0)),
-                              backgroundColor: Colors.white,
-                              selected: _selectedIndex == index,
-                              selectedColor: Constants.primaryColor,
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  if (selected) {
-                                    _selectedIndex = index;
-                                  }
-                                });
-                              },
-                            ),
+                    child: FutureBuilder(
+                      future: RemoteService.locationResponse(context),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isEmpty) {
+                          DefaultText(
+                            text: "No Locations",
+                            color: Constants.primaryColor,
                           );
-                        }),
+                        }
+                        if (snapshot.hasData) {
+                          var data = snapshot.data;
+                          return ListView.builder(
+                              itemCount: data!.length,
+                              itemBuilder: (context, index) {
+                                return Container(
+                                  margin: const EdgeInsets.only(
+                                      bottom: 5.0, left: 10.0, right: 10.0),
+                                  width: MediaQuery.of(context).size.width,
+                                  decoration: const BoxDecoration(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20.0)),
+                                    color: Colors.white,
+                                  ),
+                                  child: ChoiceChip(
+                                    label: Container(
+                                      padding: const EdgeInsets.all(10.0),
+                                      width: size.width,
+                                      child: DefaultText(
+                                        align: TextAlign.center,
+                                        text: snapshot.data![index]!.name,
+                                        size: 22.0,
+                                      ),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(30.0)),
+                                    backgroundColor: Colors.white,
+                                    selected: _selectedIndex == index,
+                                    selectedColor: Constants.primaryColor,
+                                    onSelected: (bool selected) {
+                                      setState(() {
+                                        if (selected) {
+                                          _selectedIndex = index;
+                                          destLat =
+                                              snapshot.data![index]!.latitude;
+                                          destLng =
+                                              snapshot.data![index]!.longitude;
+
+                                          print(destLat);
+                                          print(destLng);
+                                        }
+                                      });
+                                    },
+                                  ),
+                                );
+                              });
+                        }
+
+                        return const CircularProgressIndicator();
+                      },
+                    ),
                   ),
                   const SizedBox(height: 20.0),
                   SizedBox(
@@ -156,7 +156,9 @@ class _HomePageState extends State<HomePage> {
                       child: DefaultButton(
                           onPressed: () {
                             print("selected index: $_selectedIndex");
-                            _getRoute();
+                            print("Lat: $destLat\nLng: $destLng");
+                            _getRoute(
+                                double.parse(destLat), double.parse(destLng));
                             // Navigator.pushNamed(context, '/map');
                           },
                           text: "Route",

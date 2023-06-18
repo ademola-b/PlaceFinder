@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
@@ -65,48 +66,63 @@ class _AdHomePageState extends State<AdHomePage> {
                   const SizedBox(height: 30.0),
                   SizedBox(
                     height: size.height,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      scrollDirection: Axis.vertical,
-                      itemCount: 20,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 10.0),
-                          width: MediaQuery.of(context).size.width,
-                          decoration: const BoxDecoration(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(20.0)),
-                            color: Colors.white,
-                          ),
-                          child: ListTile(
-                            onTap: () {
-                              // Navigator.pushNamed(context, '/studentDetails');
+                    child: FutureBuilder(
+                      future: RemoteService.locationResponse(context),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isEmpty) {
+                          return DefaultText(
+                            text: "No Location",
+                            size: 25.0,
+                            color: Constants.altColor,
+                          );
+                        } else if (snapshot.hasData) {
+                          var data = snapshot.data;
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            itemCount: data!.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 10.0),
+                                width: MediaQuery.of(context).size.width,
+                                decoration: const BoxDecoration(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20.0)),
+                                  color: Colors.white,
+                                ),
+                                child: ListTile(
+                                  onTap: () {
+                                    // Navigator.pushNamed(context, '/studentDetails');
+                                  },
+                                  title: DefaultText(
+                                    size: 18,
+                                    text: snapshot.data![index]!.name,
+                                    color: Constants.primaryColor,
+                                    weight: FontWeight.w500,
+                                  ),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            color: Colors.amber,
+                                          )),
+                                      IconButton(
+                                          onPressed: () {},
+                                          icon: Icon(
+                                            Icons.delete,
+                                            color: Constants.altColor,
+                                          )),
+                                    ],
+                                  ),
+                                ),
+                              );
                             },
-                            title: DefaultText(
-                              size: 18,
-                              text: "Computer Science",
-                              color: Constants.primaryColor,
-                              weight: FontWeight.w500,
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(
-                                      Icons.edit,
-                                      color: Colors.amber,
-                                    )),
-                                IconButton(
-                                    onPressed: () {},
-                                    icon: Icon(
-                                      Icons.delete,
-                                      color: Constants.altColor,
-                                    )),
-                              ],
-                            ),
-                          ),
-                        );
+                          );
+                        }
+                        return const CircularProgressIndicator();
                       },
                     ),
                   ),
