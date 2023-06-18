@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:place_finder/screens/admin/add_location.dart';
 import 'package:place_finder/screens/admin/dashboard.dart';
+import 'package:place_finder/screens/admin/update_location.dart';
 import 'package:place_finder/screens/map.dart';
 import 'package:place_finder/screens/homepage.dart';
 import 'package:place_finder/screens/login.dart';
@@ -49,6 +50,9 @@ Route<dynamic> _getRoutes(RouteSettings settings) {
 
     case "/addLocation":
       return _buildRoute(settings, const AddLocation());
+
+    case "/updateLocation":
+      return _buildRoute(settings, UpdateLocation(settings.arguments));
 
     default:
       return _buildRoute(settings, const SplashScreen());

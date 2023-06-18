@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
 import 'package:place_finder/main.dart';
+import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
 
 class Constants {
@@ -40,7 +41,8 @@ class Constants {
   }
 
   static Future<dynamic> dialogBox(
-      context, String? text, Color? color, IconData? icon) {
+      context, String? text, Color? color, Color? textColor, IconData? icon,
+      {String? buttonText, void Function()? buttonAction}) {
     return showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -58,13 +60,24 @@ class Constants {
                     DefaultText(
                       size: 20.0,
                       text: text!,
-                      color: Colors.white,
+                      color: textColor,
                       align: TextAlign.center,
                       weight: FontWeight.bold,
                     ),
                   ],
                 ),
               ),
+              actions: [
+                TextButton(
+                    onPressed: buttonAction,
+                    child: DefaultText(
+                      text: "$buttonText",
+                      color: Colors.blue,
+                      size: 18.0,
+                    )),
+              ],
             ));
   }
+
+  
 }

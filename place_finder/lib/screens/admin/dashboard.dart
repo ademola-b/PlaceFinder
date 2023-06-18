@@ -4,6 +4,7 @@ import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
 import 'package:place_finder/utils/defaultTextFormField.dart';
+import 'package:http/http.dart' as http;
 
 class AdHomePage extends StatefulWidget {
   const AdHomePage({super.key});
@@ -13,7 +14,16 @@ class AdHomePage extends StatefulWidget {
 }
 
 class _AdHomePageState extends State<AdHomePage> {
-  int _selectedIndex = 1;
+  _deleteLocation(String id) async {
+    await RemoteService.deleteLocation(context, id);
+    await RemoteService.locationResponse(context);
+
+    Navigator.pop(context);
+    setState(() {});
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content:
+            DefaultText(text: "Location successfully deleted!", size: 18.0)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,13 +114,37 @@ class _AdHomePageState extends State<AdHomePage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Navigator.pushNamed(
+                                                context, '/updateLocation',
+                                                arguments: {
+                                                  'id': snapshot.data![index]!.locationId,
+                                                  'name': snapshot
+                                                      .data![index]!.name,
+                                                  'latitude': snapshot
+                                                      .data![index]!.latitude,
+                                                  'longitude': snapshot
+                                                      .data![index]!.longitude
+                                                });
+                                          },
                                           icon: const Icon(
                                             Icons.edit,
                                             color: Colors.amber,
                                           )),
                                       IconButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Constants.dialogBox(
+                                                context,
+                                                "Are you sure you want to delete ${snapshot.data![index]!.name} location?",
+                                                Colors.white,
+                                                Constants.altColor,
+                                                Icons.info_outline,
+                                                buttonText: "Delete",
+                                                buttonAction: () async {
+                                              _deleteLocation(snapshot
+                                                  .data![index]!.locationId);
+                                            });
+                                          },
                                           icon: Icon(
                                             Icons.delete,
                                             color: Constants.altColor,

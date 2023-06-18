@@ -9,14 +9,15 @@ import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
 import 'package:place_finder/utils/defaultTextFormField.dart';
 
-class AddLocation extends StatefulWidget {
-  const AddLocation({super.key});
+class UpdateLocation extends StatefulWidget {
+  final arguments;
+  const UpdateLocation(Object? this.arguments, {super.key});
 
   @override
-  State<AddLocation> createState() => _AddLocationState();
+  State<UpdateLocation> createState() => _UpdateLocationState();
 }
 
-class _AddLocationState extends State<AddLocation> {
+class _UpdateLocationState extends State<UpdateLocation> {
   final _form = GlobalKey<FormState>();
 
   String? _name;
@@ -27,18 +28,25 @@ class _AddLocationState extends State<AddLocation> {
   TextEditingController latitude = TextEditingController();
   TextEditingController longitude = TextEditingController();
 
-  _addLocation() async {
+  @override
+  void initState() {
+    name.text = widget.arguments['name'];
+    latitude.text = widget.arguments['latitude'];
+    longitude.text = widget.arguments['longitude'];
+  }
+
+  _updateLocation(
+      String id, String? name, String? latitude, String? longitude) async {
     var isValid = _form.currentState!.validate();
     if (!isValid) return;
 
     _form.currentState!.save();
 
-    LocationCreationResponse? locationCreate =
-        await RemoteService.locationCreate(
-            context, name.text, latitude.text, longitude.text);
+    await RemoteService.updateLocation(context, id, name, latitude, longitude);
 
-    await Constants.dialogBox(context, "Location Added", Constants.primaryColor, Colors.white,
-        Icons.check_circle_outline);
+    await Constants.dialogBox(context, "Location Updated", Colors.white,
+        Constants.primaryColor, Icons.check_circle_outline,
+        buttonText: "Okay", buttonAction: () => Navigator.pop(context));
     Navigator.pop(context);
   }
 
@@ -91,7 +99,7 @@ class _AddLocationState extends State<AddLocation> {
                       const SizedBox(width: 30.0),
                       DefaultText(
                         size: 25.0,
-                        text: "Add Location",
+                        text: "Update Location",
                         color: Constants.primaryColor,
                       ),
                     ],
@@ -175,9 +183,10 @@ class _AddLocationState extends State<AddLocation> {
                             width: size.width,
                             child: DefaultButton(
                               onPressed: () {
-                                _addLocation();
+                                _updateLocation(widget.arguments['id'],
+                                    name.text, latitude.text, longitude.text);
                               },
-                              text: 'Add Location',
+                              text: 'Update Location',
                               textSize: 20.0,
                             ),
                           ),

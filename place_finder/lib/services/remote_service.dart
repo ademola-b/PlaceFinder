@@ -141,4 +141,24 @@ class RemoteService {
     }
     return null;
   }
+
+  static Future<void> deleteLocation(context, String id) async {
+    try {
+      await http.delete(Uri.parse("$baseUrl/api/locations/delete/$id/"));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: DefaultText(text: "An error occured: $e")));
+    }
+  }
+
+  static Future<void> updateLocation(context, String id, String? name,
+      String? latitude, String? longitude) async {
+    try {
+      await http.put(Uri.parse("$baseUrl/api/locations/update/$id/"),
+          body: {"name": name, "latitude": latitude, "longitude": longitude});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: DefaultText(text: "An error occured: $e")));
+    }
+  }
 }
