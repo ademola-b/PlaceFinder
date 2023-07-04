@@ -76,10 +76,10 @@ class User(AbstractBaseUser):
     def has_module_perms(self, app_label):
         return True
 
-    def get_absolute_url(self):
-        return reverse("auth:profile", kwargs={
-            'pk': self.user_id
-        })
+    # def get_absolute_url(self):
+    #     return reverse("auth:profile", kwargs={
+    #         'pk': self.user_id
+    #     })
 
     class Meta:
         db_table = 'User'

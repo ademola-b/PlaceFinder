@@ -10,6 +10,7 @@ import 'package:place_finder/models/login_response.dart';
 import 'package:place_finder/models/register_response.dart';
 import 'package:place_finder/models/user_response.dart';
 import 'package:place_finder/services/urls.dart';
+import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultText.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -61,7 +62,6 @@ class RemoteService {
       });
 
       var data = jsonDecode(response.body);
-      print("object: okay");
       if (data != null) {
         if (data["key"] != null) {
           sharedPreferences.setString("token", data["key"]);
@@ -133,7 +133,20 @@ class RemoteService {
           body: {"name": name, "latitude": latitude, "longitude": longitude});
 
       if (response.statusCode == 201) {
+        await Constants.dialogBox(context, "Location Added", Colors.white,
+            Constants.primaryColor, Icons.check_circle_outline,
+            buttonText: "Okay");
+        Navigator.pop(context);
+
         return locationCreationResponseFromJson(response.body);
+      } else {
+        var data = jsonDecode(response.body);
+        if (data['name'] != null) {
+          for (var element in data['name']) {
+            ScaffoldMessenger.of(context)
+                .showSnackBar(SnackBar(content: DefaultText(text: "$element")));
+          }
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

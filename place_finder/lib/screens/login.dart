@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:place_finder/main.dart';
+import 'package:place_finder/models/user_response.dart';
 import 'package:place_finder/services/remote_service.dart';
 
 import 'package:place_finder/utils/constants.dart';
@@ -30,7 +32,29 @@ class _LoginPageState extends State<LoginPage> {
     _form.currentState!.save();
 
     await RemoteService.login(_username, _password, context);
+  }
 
+  void checkLogin() async {
+    String? token = sharedPreferences.getString("token");
+    if (token != null) {
+      UserDetailsResponse? user =
+          await RemoteService.userResponse(token, context);
+
+      if (user!.isStaff) {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/adHomePage', (route) => false);
+      } else {
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/homePage', (route) => false);
+      }
+    } else {}
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    checkLogin();
   }
 
   @override

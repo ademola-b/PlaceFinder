@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:place_finder/main.dart';
 import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
@@ -50,6 +51,7 @@ class _AdHomePageState extends State<AdHomePage> {
                       const Spacer(),
                       IconButton(
                           onPressed: () {
+                            sharedPreferences.clear();
                             Navigator.pushNamedAndRemoveUntil(
                                 context, '/login', (route) => false);
                           },
@@ -101,9 +103,7 @@ class _AdHomePageState extends State<AdHomePage> {
                                   color: Colors.white,
                                 ),
                                 child: ListTile(
-                                  onTap: () {
-                                    // Navigator.pushNamed(context, '/studentDetails');
-                                  },
+                                  onTap: () {},
                                   title: DefaultText(
                                     size: 18,
                                     text: snapshot.data![index]!.name,
@@ -118,7 +118,8 @@ class _AdHomePageState extends State<AdHomePage> {
                                             Navigator.pushNamed(
                                                 context, '/updateLocation',
                                                 arguments: {
-                                                  'id': snapshot.data![index]!.locationId,
+                                                  'id': snapshot
+                                                      .data![index]!.locationId,
                                                   'name': snapshot
                                                       .data![index]!.name,
                                                   'latitude': snapshot

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:place_finder/main.dart';
 import 'package:place_finder/services/remote_service.dart';
 import 'package:place_finder/utils/constants.dart';
 import 'package:place_finder/utils/defaultButton.dart';
@@ -20,16 +21,16 @@ class _HomePageState extends State<HomePage> {
   late String destLng;
 
   _getRoute(double destinationLat, double destinationLng) async {
+    await sharedPreferences.setDouble("destinationLat", destinationLat);
+    await sharedPreferences.setDouble("destinationLng", destinationLng);
+
     LatLng sourceLatLng = Constants.getSourceDestLatLng('source');
-    LatLng destinationLatLng = Constants.getSourceDestLatLng('destination',
-        destinationLat: destinationLat, destinationLng: destinationLng);
+    LatLng destinationLatLng = Constants.getSourceDestLatLng('destination');
     Map? modifiedResponse = await getDirectionsAPIResponse(
         sourceLatLng, destinationLatLng, context);
 
-    print("object: $destinationLat");
-    print("object: $destinationLng");
-    // Navigator.popAndPushNamed(context, '/map',
-    //     arguments: {'modifiedResponse': modifiedResponse});
+    Navigator.pushNamed(context, '/map',
+        arguments: {'modifiedResponse': modifiedResponse});
   }
 
   @override
@@ -57,6 +58,7 @@ class _HomePageState extends State<HomePage> {
                       const Spacer(),
                       IconButton(
                           onPressed: () {
+                            sharedPreferences.clear();
                             Navigator.pushNamedAndRemoveUntil(
                                 context, '/login', (route) => false);
                           },
@@ -83,7 +85,7 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 30.0),
                   Container(
                     width: size.width,
-                    height: size.height / 1.5,
+                    height: size.height / 1.8,
                     decoration: const BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.all(Radius.circular(30.0)),
@@ -135,9 +137,6 @@ class _HomePageState extends State<HomePage> {
                                               snapshot.data![index]!.latitude;
                                           destLng =
                                               snapshot.data![index]!.longitude;
-
-                                          print(destLat);
-                                          print(destLng);
                                         }
                                       });
                                     },
@@ -156,10 +155,17 @@ class _HomePageState extends State<HomePage> {
                       child: DefaultButton(
                           onPressed: () {
                             print("selected index: $_selectedIndex");
-                            print("Lat: $destLat\nLng: $destLng");
-                            _getRoute(
-                                double.parse(destLat), double.parse(destLng));
-                            // Navigator.pushNamed(context, '/map');
+                            if (_selectedIndex < 0) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: DefaultText(
+                                          text:
+                                              "You haven't made any selection",
+                                          size: 18.0)));
+                            } else {
+                              _getRoute(
+                                  double.parse(destLat), double.parse(destLng));
+                            }
                           },
                           text: "Route",
                           textSize: 25))

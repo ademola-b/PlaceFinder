@@ -7,7 +7,6 @@ import 'package:place_finder/utils/defaultButton.dart';
 import 'package:place_finder/utils/defaultText.dart';
 
 class Constants {
-  static String googleAPiKey = "AIzaSyCiL1e2XNfMUWRwGYuhu8vkEqFb-9vrzNo";
   static final Color primaryColor = Color(0xFF2296f3);
   static final Color backgroundColor = Color(0xFFc5e5FF);
   static final Color altColor = Color.fromARGB(255, 199, 35, 90);
@@ -24,14 +23,19 @@ class Constants {
         sharedPreferences.getDouble('longitude')!);
   }
 
-  static LatLng getSourceDestLatLng(String type,
-      {double? destinationLat, double? destinationLng}) {
+  static LatLng getSourceDestLatLng(
+    String type,
+  ) {
+    sharedPreferences.reload();
     double sourceLat = sharedPreferences.getDouble('latitude') as double;
     double sourceLng = sharedPreferences.getDouble('longitude') as double;
 
+    double destinationLat = sharedPreferences.getDouble('destinationLat') as double;
+    double destinationLng = sharedPreferences.getDouble('destinationLng') as double;
+
     // const LatLng sourceLocation = LatLng(10.5200603, 7.4166742);
     LatLng sourceLocation = LatLng(sourceLat, sourceLng);
-    LatLng destinationLocation = LatLng(destinationLat!, destinationLng!);
+    LatLng destinationLocation = LatLng(destinationLat, destinationLng);
 
     if (type == 'source') {
       return sourceLocation;
@@ -78,6 +82,4 @@ class Constants {
               ],
             ));
   }
-
-  
 }

@@ -101,7 +101,7 @@ class _MapPageState extends State<MapPage> {
       "fills",
       "lines",
       LineLayerProperties(
-        lineColor: Colors.indigo.toHexStringRGB(),
+        lineColor: Colors.red.toHexStringRGB(),
         lineCap: "round",
         lineJoin: "round",
         lineWidth: 3,

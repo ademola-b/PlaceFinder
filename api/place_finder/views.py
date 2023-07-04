@@ -8,7 +8,6 @@ class LocationsView(ListCreateAPIView):
     serializer_class = LocationsSerializer
 
     def get_queryset(self):
-        
         if not self.request.user.is_authenticated:
             return Location.objects.none()
         return super().get_queryset()

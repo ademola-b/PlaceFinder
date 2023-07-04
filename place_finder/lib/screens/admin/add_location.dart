@@ -33,13 +33,8 @@ class _AddLocationState extends State<AddLocation> {
 
     _form.currentState!.save();
 
-    LocationCreationResponse? locationCreate =
-        await RemoteService.locationCreate(
-            context, name.text, latitude.text, longitude.text);
-
-    await Constants.dialogBox(context, "Location Added", Constants.primaryColor, Colors.white,
-        Icons.check_circle_outline);
-    Navigator.pop(context);
+    await RemoteService.locationCreate(
+        context, name.text, latitude.text, longitude.text);
   }
 
   getCurrentLocation() async {
@@ -85,6 +80,7 @@ class _AddLocationState extends State<AddLocation> {
                     children: [
                       IconButton(
                           onPressed: () {
+                            
                             Navigator.pop(context);
                           },
                           icon: const Icon(Icons.arrow_back)),
